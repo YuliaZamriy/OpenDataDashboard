@@ -13,14 +13,15 @@ import socrata_api as socrata_helpers
 import screendoor_api as screendoor_helpers
 
 """Import functions and variables from API files"""
-#Google Analytics API
+# Google Analytics API
+# load and transform user data
 usp_data = ga_helpers.load_ga_data()
-usp_data = ga_helpers.cast_ga_data(usp_data)
-sources_data = ga_helpers.load_sources_data()
-sources_data = ga_helpers.cast_sources_data(sources_data)
 usp_daily = ga_helpers.make_usp(usp_data, freq='d')
 usp_weekly = ga_helpers.make_usp(usp_data, freq='W')
 usp_monthly = ga_helpers.make_usp(usp_data, freq='M')
+
+# load and transform user source data
+sources_data = ga_helpers.load_sources_data()
 sources_monthly = ga_helpers.make_sources(sources_data)
 print('finished google analytics api')
 
@@ -49,7 +50,7 @@ today_string = dt.today().strftime('%B %d, %Y')
 today = dt.today().strftime('%Y-%m-%d')
 ga_date = usp_daily[(usp_daily['ga:date'] >= (dt.today()-timedelta(days=8))) & (usp_daily['ga:date'] <= (dt.today()-timedelta(days=1)))]
 
-#Traces for Inquiry Type 
+#Traces for Inquiry Type
 trace1_inquiry = go.Bar(
   x=monthly_submissions[monthly_submissions['request_type_grouped'] == 'Other']['submitted_at'],
   y=monthly_submissions[monthly_submissions['request_type_grouped'] == 'Other']['id'],
@@ -84,7 +85,7 @@ trace5_inquiry = go.Bar(
 #Traces for Average Monthly Inquiry Resolution Time
 trace1_resolution = go.Scatter(
   x=monthly_resolution_time[monthly_resolution_time['request_type_grouped'] == 'Data Question']['submitted_at'],
-  y=monthly_resolution_time[monthly_resolution_time['request_type_grouped'] == 'Data Question']['average_resolution'], 
+  y=monthly_resolution_time[monthly_resolution_time['request_type_grouped'] == 'Data Question']['average_resolution'],
   line={'color':'#248038', 'width': 4},
   mode='lines',
   name='Data Question'
@@ -195,7 +196,7 @@ app.layout = html.Div([
             children='Open Data Dashboard'
           )
         ]
-      ),   
+      ),
       html.Div(
         className = 'two columns',
         children = [
@@ -219,7 +220,7 @@ app.layout = html.Div([
   dcc.Tabs(id='tabs_', value='tab1', style={'valign':'middle'}, children=[
 
     dcc.Tab(label='User Engagement', value='tab1', selected_style={'padding': 10, 'textAlign':'center' ,'height':'45'}, style={'padding': 10, 'textAlign':'center','height':'45'}, children=[
-      
+
       html.Div(
         className="row",
         children=[
@@ -248,7 +249,7 @@ app.layout = html.Div([
 	            style={'color': '#808080'}
 	          )
 	        ]
-	      ),   
+	      ),
 	      html.Div(
 	      	style={'marginRight': 0,'display': 'inline-block', 'align':'right'},
 	        className = 'three columns',
@@ -365,7 +366,7 @@ app.layout = html.Div([
                           }
                         )
                       ])
-                    ]),                               
+                    ]),
                   ]),
                 ]
               )
@@ -531,7 +532,7 @@ app.layout = html.Div([
               html.H3('Google Analytics Definitions'),
               html.P('Data from Google Analytics are measuring web traffic and site interactions from users on the NYC Open Data website. Various web traffic platforms exist (SimilarWeb, WebTrends) and have slight variations in how they define “users” or “visits”; the Open Data Team has decided to use Google Analytics as the provider of choice for our web analytics, using their definitions of “users” to track our user engagement metrics.'),
               html.H5('User:'),
-              html.P('The total number of (new and returning) users utilizing the website for the specified time period.'), 
+              html.P('The total number of (new and returning) users utilizing the website for the specified time period.'),
               html.P('Google assigns users unique identifiers based on their IP address and when they first accessed a website. A returning user who accesses the site through a different device will be counted as a separate user.'),
               html.H5('New Users:'),
               html.P('A person utilizing the website for the first time for the specified time period.'),
@@ -615,7 +616,7 @@ app.layout = html.Div([
       ])
     ]),
   ])
-])     
+])
 
 app.css.append_css({
     'external_url': 'https://codepen.io/chriddyp/pen/bWLwgP.css'
@@ -630,16 +631,16 @@ app.css.append_css({
   Input('ga-date-picker-range', 'end_date')])
 def update_user_scatter(start_date, end_date):
   if start_date is not None:
-    if end_date is not None: 
+    if end_date is not None:
       start_date = dt.strptime(start_date, '%Y-%m-%d')
       end_date = dt.strptime(end_date, '%Y-%m-%d')
       day_difference = end_date - start_date
       if (day_difference < timedelta(days=27)):
-        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]        
+        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]
       elif (day_difference < timedelta(days=90)):
-        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]       
+        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]
       else:
-        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]        
+        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]
       figure = {
         'data': [
           {'x': usp_daily_windowed['ga:date'], 'y': usp_daily_windowed['ga:users'],'type': 'scatter', 'name': 'Users', 'line': {'color': '#294a6d', 'width':4}, 'mode':'lines'},
@@ -660,16 +661,16 @@ def update_user_scatter(start_date, end_date):
 def update_sessions_scatter(start_date, end_date):
   #figure={} #instantiate figure object
   if start_date is not None:
-    if end_date is not None: 
+    if end_date is not None:
       start_date = dt.strptime(start_date, '%Y-%m-%d')
       end_date = dt.strptime(end_date, '%Y-%m-%d')
       day_difference = end_date - start_date
       if (day_difference < timedelta(days=27)):
-        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]        
+        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]
       elif (day_difference < timedelta(days=90)):
-        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]       
+        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]
       else:
-        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]  
+        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]
       figure = {
         'data': [
           {'x': usp_daily_windowed['ga:date'], 'y': usp_daily_windowed['ga:sessions'],'type': 'scatter', 'name': 'Sessions', 'line': {'color': '#294a6d', 'width':4}, 'mode':'lines'},
@@ -689,16 +690,16 @@ def update_sessions_scatter(start_date, end_date):
 def update_pageviews_scatter(start_date, end_date):
   #figure={} #instantiate figure object
   if start_date is not None:
-    if end_date is not None: 
+    if end_date is not None:
       start_date = dt.strptime(start_date, '%Y-%m-%d')
       end_date = dt.strptime(end_date, '%Y-%m-%d')
       day_difference = end_date - start_date
       if (day_difference < timedelta(days=27)):
-        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]        
+        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]
       elif (day_difference < timedelta(days=90)):
-        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]       
+        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]
       else:
-        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]  
+        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]
       figure = {
         'data': [
           {'x': usp_daily_windowed['ga:date'], 'y': usp_daily_windowed['ga:pageviews'],'type': 'scatter', 'name': 'Pageviews', 'line': {'color': '#294a6d', 'width':4}, 'mode':'lines'},
@@ -718,16 +719,16 @@ def update_pageviews_scatter(start_date, end_date):
 def update_bounce_scatter(start_date, end_date):
   #figure={} #instantiate figure object
   if start_date is not None:
-    if end_date is not None: 
+    if end_date is not None:
       start_date = dt.strptime(start_date, '%Y-%m-%d')
       end_date = dt.strptime(end_date, '%Y-%m-%d')
       day_difference = end_date - start_date
       if (day_difference < timedelta(days=27)):
-        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]        
+        usp_daily_windowed = usp_daily[(usp_daily['ga:date'] >= start_date) & (usp_daily['ga:date'] <= end_date)]
       elif (day_difference < timedelta(days=90)):
-        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]       
+        usp_daily_windowed = usp_weekly[(usp_weekly['ga:date'] >= start_date) & (usp_weekly['ga:date'] <= end_date)]
       else:
-        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]  
+        usp_daily_windowed = usp_monthly[(usp_monthly['ga:date'] >= start_date) & (usp_monthly['ga:date'] <= end_date)]
       figure = {
         'data': [
           {'x': usp_daily_windowed['ga:date'], 'y': usp_daily_windowed['bounce_rate']*100,'type': 'scatter', 'name': 'Bounce Rate', 'line': {'color': '#294a6d', 'width':4}, 'mode':'lines'},
