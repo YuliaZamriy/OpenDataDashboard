@@ -35,8 +35,6 @@ print('finished socrata analytics api')
 
 #Screendoor Analytics API
 screendoor_data = screendoor_helpers.call_screendoor_api()
-screendoor_data = screendoor_helpers.normalize_screendoor_data(screendoor_data)
-screendoor_data = screendoor_helpers.format_screendoor_data(screendoor_data)
 requests_by_status_grouped = screendoor_helpers.group_requests_by_type_and_status(screendoor_data)
 monthly_submissions = screendoor_helpers.group_inquiries_by_month_and_type(screendoor_data)
 monthly_resolution_time = screendoor_helpers.calculate_average_resolution_time(screendoor_data)
